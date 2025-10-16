@@ -44,11 +44,21 @@ app.post("/register", async (req, res) => {
       password,
       provider: "email",
     });
+    const payload = {
+      id: user.id,
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET);
+
     await user.save();
     success = true;
     res
       .status(201)
-      .json({ message: "User registered successfully", success: success });
+      .json({
+        message: "User registered successfully",
+        success: success,
+        token: token,
+      });
   } catch (err) {
     console.log(err.message);
     res.status(500).json({ message: "Internal Server Error" });
@@ -107,7 +117,6 @@ app.get(
       });
 
       res.redirect(`http://localhost:5173/dashboard?token=${token}`);
-
     } catch (err) {
       console.error("Error in callback:", err);
       res.redirect("http://localhost:5173/login?error=1");
